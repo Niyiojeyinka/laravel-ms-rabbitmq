@@ -1,0 +1,58 @@
+version: "3"
+services:
+  authservice:
+    build:
+      context: .
+      dockerfile: ./auth-service/Dockerfile
+    ports:
+      - 8181:8181
+    volumes:
+      - "./auth-service:/var/www/html/authservice"
+    depends_on:
+      - authservicedb
+      - rabbitmq
+  authservicedb:
+    image: "mysql:8.0"
+    ports:
+      - 3307:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: authservicedb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: root
+    volumes:
+      - ./auth-service/storage/dbdata:/var/lib/mysql
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: my-rabbit
+    volumes:
+      - ./rabbitmq/etc/definitions.json:/etc/rabbitmq/definitions.json
+      - ./rabbitmq/etc/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia/rabbit@my-rabbit
+      - ./rabbitmq/logs:/var/log/rabbitmq/log
+    ports:
+      - 5672:5672
+      - 15672:15672
+  smsservice:
+    build:
+      context: .
+      dockerfile: ./sms-service/Dockerfile
+    ports:
+      - 9191:9191
+    volumes:
+      - "./sms-service:/var/www/html/smsservice"
+    depends_on:
+      - smsservicedb
+      - rabbitmq
+  smsservicedb:
+    image: "mysql:8.0"
+    ports:
+      - 3309:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: smsservicedb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: root
+    volumes:
+      - ./sms-service/storage/dbdata:/var/lib/mysql
