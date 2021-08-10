@@ -22,11 +22,13 @@ Route::middleware(['api'])->group(function () {
     });
 
 
-Route::middleware(['api','auth:sanctum'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/user', function (Request $request) {
     return $request->user();
 });
 
-    Route::post('send', [SmsGatewayController::class, 'send']);
+   Route::post('send', [SmsGatewayController::class, 'send']);
+
 });
+
